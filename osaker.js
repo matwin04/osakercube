@@ -10,23 +10,30 @@ document.body.appendChild(renderer.domElement);
 
 // Load a texture
 const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('resources/osaka.png'); // Make sure 'osaka.png' is in the correct directory
 
+const osakaTexture = textureLoader.load('resources/osaka.png'); // Make sure 'osaka.png' is in the correct directory
+const tomoTexture = textureLoader.load('resources/tomo.png')
 // Create a cube geometry and a basic material with the loaded texture
 const OsakerGeometry = new THREE.BoxGeometry();
-const OsakerMaterial = new THREE.MeshBasicMaterial({ map: texture });
+const OsakerMaterial = new THREE.MeshBasicMaterial({ map: osakaTexture});
 
+const TomoGeometry = new THREE.BoxGeometry();
+const TomoMaterial = new THREE.MeshBasicMaterial({ map: tomoTexture});
 // Create a mesh from the geometry and material, and add it to the scene
 const OsakerCube = new THREE.Mesh(OsakerGeometry, OsakerMaterial);
+const TomoCube = new THREE.Mesh(TomoGeometry,TomoMaterial);
+TomoCube.castShadow = true;
+TomoCube.receiveShadow = true;
 OsakerCube.castShadow = true;
 OsakerCube.receiveShadow = true;
 scene.add(OsakerCube);
+scene.add(TomoCube);
 
 // Position the camera
 camera.position.z = 5;
 
-OsakerCube.position.set(0, 1, 0);
-
+OsakerCube.position.y = 1.2;
+TomoCube.position.y = 0;
 // Create a plane to receive shadows
 const planeGeometry = new THREE.PlaneGeometry(10, 10);
 const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.5 });
@@ -133,7 +140,7 @@ function animate() {
 
     // Rotate the cube for animation
     OsakerCube.rotation.y += 0.01;
-
+    TomoCube.rotation.y -= 0.01;
     // Update visualizer bars based on audio frequency data
     const data = analyzer.getFrequencyData();
     for (let i = 0; i < barCount; i++) {
