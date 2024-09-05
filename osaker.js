@@ -5,7 +5,7 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.setClearColor(0x000000, 1); // Start with a dark background for night
+renderer.setClearColor(0xffffff, 1);
 document.body.appendChild(renderer.domElement);
 
 // Load a texture
@@ -36,25 +36,17 @@ plane.position.y = -1.5; // Position the plane under the cube and text
 plane.receiveShadow = true; // Plane will receive shadows
 scene.add(plane);
 
-// Initialize lighting for the scene
-let sunLight = new THREE.DirectionalLight(0xffffff, 0.8); // Sunlight
-sunLight.castShadow = true;
-sunLight.position.set(5, 10, 5);
-scene.add(sunLight);
+// Add a directional light to cast shadows
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 5, 5); // Position the light
+directionalLight.castShadow = true; // Light will cast shadows
+scene.add(directionalLight);
 
-let streetLight1 = new THREE.PointLight(0xffa500, 0); // Streetlight color (orange) and intensity
-streetLight1.position.set(-3, 3, -2);
-scene.add(streetLight1);
-
-let streetLight2 = new THREE.PointLight(0xffa500, 0); // Another streetlight
-streetLight2.position.set(3, 3, -2);
-scene.add(streetLight2);
-
-// Configure shadow properties for the sun
-sunLight.shadow.mapSize.width = 1024; // Shadow map resolution
-sunLight.shadow.mapSize.height = 1024;
-sunLight.shadow.camera.near = 0.5;
-sunLight.shadow.camera.far = 50;
+// Configure shadow properties for the light
+directionalLight.shadow.mapSize.width = 1024; // Shadow map resolution
+directionalLight.shadow.mapSize.height = 1024;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 50;
 
 // Audio setup
 const listener = new THREE.AudioListener();
@@ -102,7 +94,7 @@ function updateClock(scene) {
 
         const textGeometry = new THREE.TextGeometry(timeStr, { // Use correct variable name
             font: font,
-            size: 0.5,      // Size of the text
+            size: 0.75,      // Size of the text
             height: 0.2,    // Thickness of the text
             curveSegments: 12, // Number of curve segments for the text
             bevelEnabled: true, // Enable bevel effect on the text edges
@@ -112,7 +104,7 @@ function updateClock(scene) {
             bevelSegments: 5      // Number of bevel segments
         });
 
-        const textMaterial = new THREE.MeshStandardMaterial({ color: 'red' });
+        const textMaterial = new THREE.MeshStandardMaterial({ color: 'yellow' });
         clockMesh = new THREE.Mesh(textGeometry, textMaterial);
         clockMesh.castShadow = true;   // Text will cast a shadow
         clockMesh.receiveShadow = true; // Text will receive a shadow
@@ -132,25 +124,6 @@ function startClock(scene) {
     }, 1000);
 }
 
-// Function to update lighting based on time of day
-function updateLighting() {
-    const currentHour = new Date().getHours();
-    if (currentHour >= 6 && currentHour <= 18) {
-        // Daytime settings
-        sunLight.intensity = 0.8;
-        sunLight.position.set(Math.cos(currentHour / 12 * Math.PI) * 10, 10, Math.sin(currentHour / 12 * Math.PI) * 10);
-        streetLight1.intensity = 0; // Turn off streetlights
-        streetLight2.intensity = 0;
-        renderer.setClearColor(0x87ceeb, 1); // Light blue sky
-    } else {
-        // Nighttime settings
-        sunLight.intensity = 0;
-        streetLight1.intensity = 1; // Turn on streetlights
-        streetLight2.intensity = 1;
-        renderer.setClearColor(0x000000, 1); // Dark night sky
-    }
-}
-
 // Start the 3D clock
 startClock(scene); // Initialize the clock
 
@@ -159,7 +132,7 @@ function animate() {
     requestAnimationFrame(animate);
 
     // Rotate the cube for animation
-    OsakerCube.rotation.y += 0.02;
+    OsakerCube.rotation.y += 0.01;
 
     // Update visualizer bars based on audio frequency data
     const data = analyzer.getFrequencyData();
@@ -168,12 +141,12 @@ function animate() {
         bars[i].scale.y = scale; // Scale the height of each bar based on frequency data
     }
 
-    // Update lighting
-    updateLighting();
-
     // Render the scene from the perspective of the camera
     renderer.render(scene, camera);
 }
+
+// Start the animation loop
+
 
 // Start the animation loop
 animate();
